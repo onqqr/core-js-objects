@@ -47,13 +47,13 @@ function mergeObjects(objects) {
  * Removes a properties from an object.
  *
  * @param {Object} obj - The object from which to remove the property
- * @param {Array} keys - The keys of the properties to remove
+ * @param {string[]} keys - The keys of the properties to remove
  * @return {Object} - The object with the specified key removed
  *
  * @example
  *    removeProperties({a: 1, b: 2, c: 3}, ['b', 'c']) => {a: 1}
  *    removeProperties({a: 1, b: 2, c: 3}, ['d', 'e']) => {a: 1, b: 2, c: 3}
- *    removeProperties({name: 'John', age: 30, city: 'New York'}, 'age') => {name: 'John', city: 'New York'}
+ *    removeProperties({name: 'John', age: 30, city: 'New York'}, ['age']) => {name: 'John', city: 'New York'}
  *
  */
 function removeProperties(obj, keys) {
@@ -388,7 +388,7 @@ class CssSelector {
   }
 
   static get duplicateError() {
-    return 'Element, id and pseudo-element should not occur more then one time inside the selector';
+    return 'Element, id and pseudo-element should not occur more than one time inside the selector';
   }
 
   addPart(part, order, uniqueKey) {
