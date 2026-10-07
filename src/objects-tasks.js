@@ -307,8 +307,16 @@ function sortCitiesArray(arr) {
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
+function group(array, keySelector, valueSelector) {
+  return array.reduce((map, item) => {
+    const key = keySelector(item);
+    const value = valueSelector(item);
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    map.get(key).push(value);
+    return map;
+  }, new Map());
 }
 
 /**
@@ -365,33 +373,98 @@ function group(/* array, keySelector, valueSelector */) {
  *  For more examples see unit tests.
  */
 
+class CssSelector {
+  constructor() {
+    this.selector = '';
+    this.lastPartOrder = 0;
+    this.usedParts = {
+      element: false,
+      id: false,
+      pseudoElement: false,
+    };
+  }
+
+  static get orderError() {
+    return 'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element';
+  }
+
+  static get duplicateError() {
+    return 'Element, id and pseudo-element should not occur more then one time inside the selector';
+  }
+
+  addPart(part, order, uniqueKey) {
+    if (order < this.lastPartOrder) {
+      throw new Error(CssSelector.orderError);
+    }
+    if (uniqueKey) {
+      if (this.usedParts[uniqueKey]) {
+        throw new Error(CssSelector.duplicateError);
+      }
+      this.usedParts[uniqueKey] = true;
+    }
+    this.lastPartOrder = order;
+    this.selector += part;
+    return this;
+  }
+
+  element(value) {
+    return this.addPart(value, 1, 'element');
+  }
+
+  id(value) {
+    return this.addPart(`#${value}`, 2, 'id');
+  }
+
+  class(value) {
+    return this.addPart(`.${value}`, 3);
+  }
+
+  attr(value) {
+    return this.addPart(`[${value}]`, 4);
+  }
+
+  pseudoClass(value) {
+    return this.addPart(`:${value}`, 5);
+  }
+
+  pseudoElement(value) {
+    return this.addPart(`::${value}`, 6, 'pseudoElement');
+  }
+
+  stringify() {
+    return this.selector;
+  }
+}
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    return new CssSelector().element(value);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    return new CssSelector().id(value);
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    return new CssSelector().class(value);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    return new CssSelector().attr(value);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    return new CssSelector().pseudoClass(value);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    return new CssSelector().pseudoElement(value);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    const combined = new CssSelector();
+    combined.selector = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return combined;
   },
 };
 
